@@ -2,27 +2,32 @@
 
 var testENV = true;
 
-function formateDate(date,fmt)   
-{ //author: meizz   
-  var o = {   
-    "M+" : date.getMonth()+1,                 //月份   
-    "d+" : date.getDate(),                    //日   
-    "h+" : date.getHours(),                   //小时   
-    "m+" : date.getMinutes(),                 //分   
-    "s+" : date.getSeconds(),                 //秒   
-    "q+" : Math.floor((date.getMonth()+3)/3), //季度   
-    "S"  : date.getMilliseconds()             //毫秒   
-  };   
-  if(/(y+)/.test(fmt))   
-    fmt=fmt.replace(RegExp.$1, (date.getFullYear()+"").substr(4 - RegExp.$1.length));   
-  for(var k in o)   
-    if(new RegExp("("+ k +")").test(fmt))   
-  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
-  return fmt;   
-}
+function toDateString(dateInS) {
+	var t = new Date(Number(dateInS));
+    var year = t.getFullYear();
+    var month = t.getMonth() + 1;
+    var day = t.getDate();
+    var hour = t.getHours();
+    var minute = t.getMinutes();
+    var second = t.getSeconds();
 
-function toDateString(dateInS){
-	return formateDate(new Date(Number(dateInS)),"yyyy-MM-dd hh:mm:ss");
+    if (month < 10) {
+        month = '0' + month;
+    }
+    if (day < 10) {
+        day = '0' + day;
+    }
+    if (hour < 10) {
+        hour = '0' + hour;
+    }
+    if (minute < 10) {
+        minute = '0' + minute;
+    }
+    if (second < 10) {
+        second = '0' + second;
+    }
+
+    return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
 }
 
 function adjustFloat(v) {
@@ -195,12 +200,10 @@ function ifBuySell(records,ticker,account){
 		biggestPriceChangeDate = record.Time;
 	}
 	var color = "#ff0000";
-	var info = "Price:" + ticker.Buy +  ",Volume:" + record.Volume + ",PriceChange:" + priceChange +
-	",AverageVolume:" + averageVolume + ",AverageChange" + averageChange +
+	var recordLen = records.length;
+	var info = "Price:" + ticker.Buy +  ",Volume:" + record.Volume + ",PriceChange:" + priceChange + ",AverageVolume:" + averageVolume + ",AverageChange" + averageChange +
 	",BiggestVolume:" + biggestVolume + " ,Date:" + toDateString(biggestVolumeDate) +
-	",BiggestChange:" + biggestChange + " ,Date:" + toDateString(biggestPriceChangeDate) 
-	+",RecordCount:" + records.length;
-	
+	",BiggestChange:" + biggestChange + " ,Date:" + toDateString(biggestPriceChangeDate) + ",RecordCount:" + recordLen;	
 	localLog(info);
 	if (record.Volume > averageVolume * 3 && priceChange > averageChange * 2 ) {
 		Log(info,color);
@@ -345,6 +348,5 @@ function main() {
 		Sleep(LoopInterval * 1000);
 	}
 }
-//console.log(toDateString(1417500000000));
 
 
