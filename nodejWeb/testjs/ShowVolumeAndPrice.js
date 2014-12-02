@@ -1,6 +1,7 @@
 //Show Volume And Price
 
 var testENV = true;
+var ts = require("./readTestData.js");
 
 function toDateString(dateInS) {
 	var t = new Date(Number(dateInS));
@@ -178,7 +179,6 @@ function sell(ticker,account){
     }
     return false;
 }
-
 function ifBuySell(records,ticker,account){
 	var record = records[records.length-1];
 	var time = new Date(record.Time);
@@ -238,10 +238,15 @@ function GetOrders() {
     return orders;
 }
 
+var firstTime = true;
 function onTick() {
 	var records = exchange.GetRecords();
 	if (!records || records.length < (EMA_Slow + 3)) {
 		return;
+	}
+	if(firstTime){
+		firstTime = false;
+		localLog(JSON.stringify(records));
 	}
 	var ticker = GetTicker();
 	var account = GetAccount();
@@ -348,5 +353,4 @@ function main() {
 		Sleep(LoopInterval * 1000);
 	}
 }
-
 

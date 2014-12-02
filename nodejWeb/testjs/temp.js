@@ -22,6 +22,8 @@ for(var i=10;i<20;i++){
 }
 
 //console.log(JSON.stringify(dict));
-for(var i=0;i<10;i++){
-	console.log(Math.random());
-}
+//for(var i=0;i<10;i++){
+//	console.log(Math.random());
+//}
+console.log("12345678".substring(0,2));
+console.log("12345678".substring(2,4));

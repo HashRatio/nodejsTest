@@ -2,7 +2,6 @@ var sys = require("util");
 var http = require("http");
 var fs = require("fs");
 var zlib = require('zlib');
-require("./readTestData.js");
 var count = 0;
 var huobiAPI = "http://api.huobi.com/staticmarket/ticker_btc_json.js";
 
@@ -87,14 +86,14 @@ var onGetRecords = function(res) {
 	});
 };
 
-var readURL = function(host,url) {
+var readURLIntoFile = function(host,url,fileName) {
 	var request = http.get({
 		host : host,
 		path : url
 	});
 	var data = "";
 	request.on('response', function(response) {
-		var output = fs.createWriteStream('tmp.txt');
+		var output = fs.createWriteStream(fileName);
 		  switch (response.headers['content-encoding']) {
 		    // or, just use zlib.createUnzip() to handle both cases
 		    case 'gzip':
@@ -104,6 +103,7 @@ var readURL = function(host,url) {
 		      response.pipe(zlib.createInflate()).pipe(output);
 		      break;
 		    default:
+		    	console.log("Normal");
 		      response.pipe(output);
 		      break;
 		  }
@@ -147,9 +147,12 @@ var readURL = function(host,url) {
 
 //main();
 //getRecords();
-function doTest(){
-	readURL("s2.bitcoinwisdom.com","/period?step=86400&symbol=huobibtccny&mode=simple");
-	readHuobi("./tmp.txt");
+function makeRecordByFile(fileName){
+	
 }
 
-doTest();
+function readIntoFile(){
+	readURLIntoFile("s2.bitcoinwisdom.com","/period?step=900&symbol=huobibtccny&mode=simple","./wishuobi15.txt");
+	readURLIntoFile("api.huobi.com","/staticmarket/btc_kline_005_json.js","./huobi15.txt");
+}
+readIntoFile();

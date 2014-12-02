@@ -487,13 +487,3 @@ if (typeof JSON !== 'object') {
         };
     }
 }());
-
-                    function testStringJson(){
-                    	var json = {a:123,b:345};
-                    	var str = "{a:123,b:345}";
-//                    	var jsonR = eval(str);
-                    	console.log(json);
-                    	console.log("Eval Json" + str.toJSON());
-                    	console.log(jsonR.a);
-                    }
-                    testStringJson();
