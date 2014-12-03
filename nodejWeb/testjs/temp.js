@@ -25,5 +25,27 @@ for(var i=10;i<20;i++){
 //for(var i=0;i<10;i++){
 //	console.log(Math.random());
 //}
-console.log("12345678".substring(0,2));
-console.log("12345678".substring(2,4));
+//console.log("12345678".substring(0,2));
+//console.log("12345678".substring(2,4));
+function testRef() {
+	var a = [];
+	var b = {
+		a : 1,
+		b : 2
+	};
+	a.push(b);
+	console.log(JSON.stringify(a));
+	b.b = 3;
+	console.log(JSON.stringify(b));
+	console.log(JSON.stringify(a));
+}
+
+function tA(){
+	tB();
+}
+
+function tB(){
+	console.log("tB");
+}
+
+tA();

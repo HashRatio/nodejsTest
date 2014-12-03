@@ -140,7 +140,8 @@ function testRecords(records){
 		var r = records[i];
 		console.log(toDateString(r.Time) + ":\t"+ adjustFloat(r.Open)
 				+ "\t"+  adjustFloat(r.High) + "\t"+  adjustFloat(r.Low) 
-				+ "\t"+  adjustFloat(r.Close)+ "\t"+  adjustFloat(r.Volume));
+				+ "\t"+  adjustFloat(r.Close)+ "\t"+  adjustFloat(r.Volume)
+				+ "\t"+ r.Tag);
 		averageVolume+= r.Volume;
 		averageChange+= r.High - r.Low;
 	}
@@ -197,6 +198,7 @@ function makeRecordsForWisdom(origRecords){
 		record.Low = origRecord[6];
 		record.Close = origRecord[4];
 		record.Volume = origRecord[7];
+		record.Tag = "wishuobi";
 		records.push(record);
 	}
 	return records;
@@ -204,7 +206,7 @@ function makeRecordsForWisdom(origRecords){
 
 function parseHuobiDate(dateStr){
 	var date = new Date();
-	date.setFullYear(Number(dateStr.substring(0,4)),Number(dateStr.substring(4,6)),Number(dateStr.substring(6,8)));
+	date.setFullYear(Number(dateStr.substring(0,4)),Number(dateStr.substring(4,6))-1,Number(dateStr.substring(6,8)));
 //	20141202 1755 00000
 	date.setHours(Number(dateStr.substring(8,10)),Number(dateStr.substring(10,12)),0,0);
 	return date.getTime();
@@ -225,23 +227,50 @@ function makeRecordsForHuobiAPI(origRecords){
 		record.Low = origRecord[3];
 		record.Close = origRecord[4];
 		record.Volume = origRecord[5];
+		record.Tag = "huobi";
 		records.push(record);
 	}
 	return records;
 }
 
 var allRecord = [];
-function makeRecordsFromHuobiFile(fileName){
+var flag1 = false;
+var flag2 = false;
+
+
+function make1MinRecordsFromHuobiFile(fileName){
 	fs.readFile(fileName, function(err, data) {
 		if (err) {
 			throw err;
 		}
 		var origRecords = JSON.parse(data);
 		var records = makeRecordsForHuobiAPI(origRecords);
-		allRecord.push(records);
+		records = mergeInto(records,5);
 //		testRecords(records);
+		for(var i=0;i<records.length;i++){
+			allRecord.push(records[i]);
+		}
+		console.log("OrigLen:"+origRecords.length);
+		console.log("MergedLen:"+records.length);
+		flag1 = true;
 	});	
 }
+
+function make15MinRecordsFromHuobiFile(fileName){
+	fs.readFile(fileName, function(err, data) {
+		if (err) {
+			throw err;
+		}
+		var origRecords = JSON.parse(data);
+		var records = makeRecordsForHuobiAPI(origRecords);
+//		testRecords(records);
+		for(var i=0;i<records.length;i++){
+			allRecord.push(records[i]);
+		}
+		flag2 = true;
+	});	
+}
+
 
 function makeRecordsFromWisHuobiFile(fileName){
 	fs.readFile(fileName, function(err, data) {
@@ -250,15 +279,70 @@ function makeRecordsFromWisHuobiFile(fileName){
 		}
 		var origRecords = JSON.parse(data);
 		var records = makeRecordsForWisdom(origRecords);
-		allRecord.push(records);
+		for(var i=0;i<records.length;i++){
+			allRecord.push(records[i]);
+		}
+		flag2 = true;
 //		testRecords(records);
 	});	
 }
 //huobi:2015-01-02 18:15:00:	2369.05	2370.9	2364	2364.98	538.14
 //Wis: 	2014-12-02 18:15:00:	2369.05	2370.9	2364	2364.64	566.16
-//makeRecordsFromWisHuobiFile("./wishuobi15.txt");
-//makeRecordsFromHuobiFile("./huobi15.txt");
-testAllRecord(){
-	
+
+function testAllRecord(){
+	make1MinRecordsFromHuobiFile("./huobi1Min.txt");
+	make15MinRecordsFromHuobiFile("./huob30Min.txt");
+//	makeRecordsFromHuobiFile("./huobi15.txt");
+	var onTimer = function (){
+		if(flag1 && flag2){// 
+			console.log("File OK");
+			var sorted = sort(allRecord,'asc');
+			testRecords(sorted);
+		}else{
+			console.log("Wait...");
+			setTimeout(onTimer,10);
+		}
+	}
+	setTimeout(onTimer,10);
 }
-//test();
+
+
+function mergeInto(origRecords,period){
+	var records = [];
+	var startTime = origRecords[0].Time;
+	var record = {};
+	record.Time = 0;
+	var millis = period * 60000;
+	for(var i=0;i<origRecords.length;i++){
+		var r = origRecords[i];
+		if(r.Time>=record.Time+millis){
+			//New record
+			record = {};
+			//Check Time, trim to 0,15,45
+			var date = new Date(r.Time);
+			date.setMinutes(date.getMinutes()-(date.getMinutes()%period));
+			record.Time = date.getTime();
+			record.Open = r.Open;
+			record.High = r.High;
+			record.Low = r.Low;
+			record.Tag = origRecords.Tag;
+			record.Volume = r.Volume;
+			record.Tag = r.Tag;
+			records.push(record);
+		}else{
+			if(r.High>record.High){
+				record.High = r.High;
+			}
+			if(r.Low<record.Low){
+				record.Low = r.Low;
+			}
+			record.Close = r.Close;
+			record.Volume += r.Volume;
+		}
+	}
+	return records;
+}
+
+
+testAllRecord();
+//makeRecordsFromHuobiFile("./huobi1Min.txt");

@@ -152,7 +152,8 @@ function makeRecordByFile(fileName){
 }
 
 function readIntoFile(){
-	readURLIntoFile("s2.bitcoinwisdom.com","/period?step=900&symbol=huobibtccny&mode=simple","./wishuobi15.txt");
-	readURLIntoFile("api.huobi.com","/staticmarket/btc_kline_005_json.js","./huobi15.txt");
+//	readURLIntoFile("s2.bitcoinwisdom.com","/period?step=60&symbol=huobibtccny&mode=simple","./wishuobi1Min.txt");
+	readURLIntoFile("api.huobi.com","/staticmarket/btc_kline_030_json.js","./huobi30Min.txt");
+	readURLIntoFile("api.huobi.com","/staticmarket/btc_kline_001_json.js","./huobi1Min.txt");
 }
 readIntoFile();
