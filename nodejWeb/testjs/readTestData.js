@@ -135,15 +135,17 @@ function testRecords(records){
 	var time = new Date(records[records.length-1].Time);
 	var averageVolume = 0;
 	var averageChange = 0;
-	console.log("Open\tHigh\tLow\tClose\tVolume");
+	console.log("Open\tHigh\tLow\tClose\tChange\tVolume");
 	for(var i =0;i<records.length;i++){
 		var r = records[i];
-		console.log(toDateString(r.Time) + ":\t"+ adjustFloat(r.Open)
-				+ "\t"+  adjustFloat(r.High) + "\t"+  adjustFloat(r.Low) 
-				+ "\t"+  adjustFloat(r.Close)+ "\t"+  adjustFloat(r.Volume)
-				+ "\t"+ r.Tag);
 		averageVolume+= r.Volume;
 		averageChange+= r.High - r.Low;
+		console.log(toDateString(r.Time) + ":\t"+ adjustFloat(r.Open)
+				+ "\t"+  adjustFloat(r.High) + "\t"+  adjustFloat(r.Low) 
+				+ "\t"+  adjustFloat(r.Close)+ "\t"+  adjustFloat(r.High - r.Low)
+				+ "\t"+  adjustFloat(r.Volume)
+				+ "\t"+  adjustFloat(r.Volume/(r.High - r.Low)));
+
 	}
 	console.log("Total Volume In " + records.length + " records:" + adjustFloat(averageVolume));
 	averageVolume = adjustFloat(averageVolume / records.length);
@@ -263,10 +265,10 @@ function make15MinRecordsFromHuobiFile(fileName){
 		}
 		var origRecords = JSON.parse(data);
 		var records = makeRecordsForHuobiAPI(origRecords);
-//		testRecords(records);
-		for(var i=0;i<records.length;i++){
-			allRecord.push(records[i]);
-		}
+		testRecords(records);
+//		for(var i=0;i<records.length;i++){
+//			allRecord.push(records[i]);
+//		}
 		flag2 = true;
 	});	
 }
@@ -291,7 +293,7 @@ function makeRecordsFromWisHuobiFile(fileName){
 
 function testAllRecord(){
 	make1MinRecordsFromHuobiFile("./huobi1Min.txt");
-	make15MinRecordsFromHuobiFile("./huob30Min.txt");
+	make15MinRecordsFromHuobiFile("./huobi30Min.txt");
 //	makeRecordsFromHuobiFile("./huobi15.txt");
 	var onTimer = function (){
 		if(flag1 && flag2){// 
@@ -344,5 +346,5 @@ function mergeInto(origRecords,period){
 }
 
 
-testAllRecord();
-//makeRecordsFromHuobiFile("./huobi1Min.txt");
+//testAllRecord();
+make15MinRecordsFromHuobiFile("./huobi1Min.txt");
