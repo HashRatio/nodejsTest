@@ -144,8 +144,23 @@ public class BTCCharts extends AnimatingSurface {
     }
 
 
+    private static final int MINCANDLE_WIDTH = 5;
     public void render(int w, int h, Graphics2D g2) {
-	
+	int kHigh = h;
+	double high = data.getHigh();
+	double low = data.getLow();
+	double space = high - low;
+	double pixelsPerValue = kHigh/space;
+	int widthPerCandle = w/data.getRecords().size();
+	List<Record> records = data.getRecords();
+	g2.setColor(Color.RED);
+	for(int i =0;i<records.size();i++){
+	    Record record = records.get(i);
+	    int x = i * widthPerCandle;
+	    int lowY = kHigh - (int)(record.getLow() * pixelsPerValue);
+	    int highY = kHigh - (int)(record.getHigh() * pixelsPerValue);
+	    g2.drawRect(x, highY, widthPerCandle, highY-lowY);;
+	}
 	
 //        ellipse.setFrame(w/2-size,h/2-size,size*2,size*2);
 //        g2.setColor(BLACK);
